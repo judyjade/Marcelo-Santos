@@ -15,20 +15,22 @@ mm.add("(prefers-reduced-motion: no-preference)", () => {
     const txt = w.textContent;
     w.innerHTML = '<span class="mask">' + [...txt].map(c => '<span class="ch">' + c + '</span>').join("") + "</span>";
   });
-  gsap.from(".ch", {yPercent: 115, duration: 1, ease: "power3.out", stagger: 0.04, delay: 0.2});
+  gsap.from(".ch", { yPercent: 115, duration: 1, ease: "power3.out", stagger: 0.04, delay: 0.2 });
 
   /* 3. Parallax: cada camada desce numa velocidade diferente */
   document.querySelectorAll(".layer").forEach(el => {
     const s = parseFloat(el.dataset.speed);
     if (!s) return;
-    gsap.to(el, {y: () => document.getElementById("hero").offsetHeight * s, ease: "none",
-      scrollTrigger: {trigger: ".hero", start: "top top", end: "bottom top", scrub: true}});
+    gsap.to(el, {
+      y: () => document.getElementById("hero").offsetHeight * s, ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true }
+    });
   });
 
   /* 4. Parallax do mouse (só onde existe mouse) */
   if (matchMedia("(hover:hover)").matches) {
-    const mx = gsap.quickTo(".w1", "x", {duration: .8, ease: "power3"});
-    const sx = gsap.quickTo(".subject", "x", {duration: .8, ease: "power3"});
+    const mx = gsap.quickTo(".w1", "x", { duration: .8, ease: "power3" });
+    const sx = gsap.quickTo(".subject", "x", { duration: .8, ease: "power3" });
     addEventListener("pointermove", e => {
       const n = e.clientX / innerWidth - 0.5;
       mx(n * -24); sx(n * 12);
@@ -48,14 +50,16 @@ mm.add("(prefers-reduced-motion: no-preference)", () => {
   };
   setActive(0);
 
-  const fall = {yPercent: 120, rotate: 10, opacity: 0, ease: "power2.in", duration: 0.6};
+  const fall = { yPercent: 120, rotate: 10, opacity: 0, ease: "power2.in", duration: 0.6 };
   gsap.timeline({
-    scrollTrigger: {trigger: ".svc", start: "top top", end: "+=300%", pin: true, scrub: 0.6,
-      onUpdate: self => setActive(Math.min(2, Math.floor(self.progress * 3)))}
+    scrollTrigger: {
+      trigger: ".svc", start: "top top", end: "+=300%", pin: true, scrub: 0.6,
+      onUpdate: self => setActive(Math.min(2, Math.floor(self.progress * 3)))
+    }
   })
-  .to(".c0", fall, 0.7)
-  .to(".c1", fall, 1.7)
-  .to({}, {duration: 0.7}, 2.3); // respiro no fim
+    .to(".c0", fall, 0.7)
+    .to(".c1", fall, 1.7)
+    .to({}, { duration: 0.7 }, 2.3); // respiro no fim
 
   return () => { gsap.ticker.remove(tick); lenis.destroy(); };
 });
@@ -109,7 +113,7 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
   const gal = document.getElementById("galeria"), wrap = document.getElementById("glwrap"), cv = document.getElementById("glc");
   if (typeof THREE === "undefined") return;
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({canvas: cv, antialias: true, alpha: true}); } catch (e) { return; } // sem WebGL: fica o cilindro CSS
+  try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch (e) { return; } // sem WebGL: fica o cilindro CSS
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
 
   /* ====== AJUSTES: mexa aqui ====== */
@@ -124,9 +128,11 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const works = [...document.querySelectorAll("#ring .gcard")].map(c => {
     if (c.dataset.img) { c.style.backgroundImage = "url(" + c.dataset.img + ")"; c.style.backgroundSize = "cover"; }
-    return {title: c.querySelector(".gt").childNodes[0].textContent.trim(), tag: c.querySelector("small").textContent,
+    return {
+      title: c.querySelector(".gt").childNodes[0].textContent.trim(), tag: c.querySelector("small").textContent,
       hue: parseFloat(c.style.getPropertyValue("--h")) || 340, img: c.dataset.img || "",
-      fotos: (c.dataset.fotos || "").split(",").map(s => s.trim()).filter(Boolean)};
+      fotos: (c.dataset.fotos || "").split(",").map(s => s.trim()).filter(Boolean)
+    };
   });
   const n = works.length;
   const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
@@ -148,12 +154,16 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
   };
   const mkTex = el => { const t = new THREE.Texture(el); t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.needsUpdate = true; return t; };
   const meshes = works.map((w, i) => {
-    const mat = new THREE.ShaderMaterial({transparent: true, vertexShader: vs, fragmentShader: fs,
-      uniforms: {uBend: {value: BEND}, uTex: {value: mkTex(ph(w, i))}, uAspect: {value: ASPECT}, uImgAspect: {value: 640 / 474}}});
+    const mat = new THREE.ShaderMaterial({
+      transparent: true, vertexShader: vs, fragmentShader: fs,
+      uniforms: { uBend: { value: BEND }, uTex: { value: mkTex(ph(w, i)) }, uAspect: { value: ASPECT }, uImgAspect: { value: 640 / 474 } }
+    });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 32, 1), mat); scene.add(m);
-    if (w.img) { const im = new Image(); im.crossOrigin = "anonymous";
+    if (w.img) {
+      const im = new Image(); im.crossOrigin = "anonymous";
       im.onload = () => { mat.uniforms.uTex.value = mkTex(im); mat.uniforms.uImgAspect.value = im.width / im.height; kick(); };
-      im.src = w.img; }
+      im.src = w.img;
+    }
     return m;
   });
 
@@ -161,8 +171,10 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
   const arrow = document.getElementById("gla"), label = document.getElementById("gcount");
   let W = 3, H = 2.2, S = 3, pxU = 100, cardPx = 300, cur = 0, tgt = 0, act = -1, visible = false, raf = 0, dragging = false, sx = 0, st = 0, moved = 0, st0 = 0, ST = null, timer = 0;
 
-  const setAct = a => { act = a; tEl.textContent = works[a].title; gEl.textContent = works[a].tag; label.textContent = "0" + (a + 1) + " / 0" + n;
-    gsap.fromTo(info, {opacity: 0, y: 10}, {opacity: 1, y: 0, duration: .45, ease: "power3.out"}); };
+  const setAct = a => {
+    act = a; tEl.textContent = works[a].title; gEl.textContent = works[a].tag; label.textContent = "0" + (a + 1) + " / 0" + n;
+    gsap.fromTo(info, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .45, ease: "power3.out" });
+  };
   const render = () => {
     cur += (tgt - cur) * (reduce ? 1 : 0.1);
     const T = n * S; // volta infinita: cada card é reposicionado dentro de [-T/2, T/2)
@@ -174,12 +186,15 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
   const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
   const per = () => (ST.end - ST.start) / (n - 1);                       // rolagem (px) entre um trabalho e o próximo
   const idxNow = () => Math.round(Math.max(0, Math.min(1, ST.progress)) * (n - 1));
-  const scrollY = (y, o) => window.lenis ? window.lenis.scrollTo(y, o) : window.scrollTo({top: y, behavior: "smooth"});
-  const settle = () => { clearTimeout(timer); timer = setTimeout(() => { // parou de rolar: encaixa no trabalho mais próximo
-    if (dragging || !ST || !ST.isActive) return; scrollY(ST.start + idxNow() * per(), {duration: 0.5}); }, 160); };
+  const scrollY = (y, o) => window.lenis ? window.lenis.scrollTo(y, o) : window.scrollTo({ top: y, behavior: "smooth" });
+  const settle = () => {
+    clearTimeout(timer); timer = setTimeout(() => { // parou de rolar: encaixa no trabalho mais próximo
+      if (dragging || !ST || !ST.isActive) return; scrollY(ST.start + idxNow() * per(), { duration: 0.5 });
+    }, 160);
+  };
   const go = k => {
     if (!ST) { tgt = Math.round(tgt) + k; kick(); return; }
-    scrollY(ST.start + Math.max(0, Math.min(n - 1, idxNow() + k)) * per(), {duration: 0.8});
+    scrollY(ST.start + Math.max(0, Math.min(n - 1, idxNow() + k)) * per(), { duration: 0.8 });
   };
 
   /* Ensaio em tela cheia: usa o <dialog> nativo (já traz Esc, foco preso e fundo bloqueado) */
@@ -198,7 +213,7 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
     vW.href = "https://wa.me/" + WHATS + "?text=" + encodeURIComponent("Olá, Marcelo! Vi o ensaio “" + w.title + "” (" + w.tag + ") e quero um orçamento.");
     if (window.lenis) window.lenis.stop();
     dlg.showModal(); dlg.scrollTop = 0;
-    if (!reduce) gsap.fromTo(dlg, {clipPath: "inset(30% 25% 30% 25% round 24px)", opacity: 0}, {clipPath: "inset(0% 0% 0% 0% round 0px)", opacity: 1, duration: 0.7, ease: "power3.out"});
+    if (!reduce) gsap.fromTo(dlg, { clipPath: "inset(30% 25% 30% 25% round 24px)", opacity: 0 }, { clipPath: "inset(0% 0% 0% 0% round 0px)", opacity: 1, duration: 0.7, ease: "power3.out" });
   };
   dlg.addEventListener("close", () => { if (window.lenis) window.lenis.start(); if (opener) opener.focus(); });
   document.getElementById("v-close").onclick = () => dlg.close();
@@ -221,13 +236,15 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
   };
 
   wrap.addEventListener("pointerdown", e => { dragging = true; sx = e.clientX; st = tgt; st0 = window.scrollY; moved = 0; wrap.setPointerCapture(e.pointerId); kick(); });
-  wrap.addEventListener("pointermove", e => { if (!dragging) return; const dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx)); if (ST) scrollY(st0 - dx / (S * pxU) * per(), {immediate: true}); else { tgt = st - dx / (S * pxU); kick(); } });
-  const end = e => { if (!dragging) return; dragging = false; if (ST) settle(); else { tgt = Math.round(tgt); kick(); }
+  wrap.addEventListener("pointermove", e => { if (!dragging) return; const dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx)); if (ST) scrollY(st0 - dx / (S * pxU) * per(), { immediate: true }); else { tgt = st - dx / (S * pxU); kick(); } });
+  const end = e => {
+    if (!dragging) return; dragging = false; if (ST) settle(); else { tgt = Math.round(tgt); kick(); }
     if (e.type === "pointerup" && moved < 6) { // toque: no card central abre; nas laterais, avança
       const dx = e.clientX - wrap.getBoundingClientRect().left - wrap.clientWidth / 2;
       if (Math.abs(dx) < cardPx / 2) openWork(act);
       else go(Math.sign(dx));
-    } };
+    }
+  };
   ["pointerup", "pointercancel"].forEach(t => wrap.addEventListener(t, end));
   wrap.addEventListener("keydown", e => { if (e.key === "Enter") openWork(act); if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); });
   document.getElementById("gnext").onclick = () => go(1);
@@ -238,9 +255,11 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
 
   gal.classList.add("gl"); // ativa o modo WebGL (CSS esconde o cilindro)
   if (!reduce) { // seção fixada: a rolagem da página passa os trabalhos, e só no fim a página continua
-    ST = ScrollTrigger.create({trigger: gal, start: "top top", end: () => "+=" + (n - 1) * innerHeight * SCROLL_POR_CARD,
+    ST = ScrollTrigger.create({
+      trigger: gal, start: "top top", end: () => "+=" + (n - 1) * innerHeight * SCROLL_POR_CARD,
       pin: true, invalidateOnRefresh: true, refreshPriority: 2,
-      onUpdate: self => { tgt = self.progress * (n - 1); kick(); settle(); }});
+      onUpdate: self => { tgt = self.progress * (n - 1); kick(); settle(); }
+    });
   }
   layout();
 })();
@@ -259,10 +278,14 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
     if (gal.classList.contains("gl")) return; // a galeria WebGL já cuida disso
     gal.classList.add("hpin");
     const dist = () => track.scrollWidth - innerWidth;
-    gsap.to(track, {x: () => -dist(), ease: "none",
-      scrollTrigger: {trigger: gal, start: "top top", end: () => "+=" + dist(), pin: true, scrub: 0.6,
+    gsap.to(track, {
+      x: () => -dist(), ease: "none",
+      scrollTrigger: {
+        trigger: gal, start: "top top", end: () => "+=" + dist(), pin: true, scrub: 0.6,
         invalidateOnRefresh: true, refreshPriority: 2,
-        onUpdate: s => { label.textContent = "0" + (Math.round(s.progress * (n - 1)) + 1) + " / 0" + n; }}});
+        onUpdate: s => { label.textContent = "0" + (Math.round(s.progress * (n - 1)) + 1) + " / 0" + n; }
+      }
+    });
     return () => gal.classList.remove("hpin");
   });
 })();
@@ -273,7 +296,7 @@ const io = new IntersectionObserver(es => es.forEach(e => {
   if (!v.dataset.src) return;
   if (e.isIntersecting) {
     if (!v.src) v.src = v.dataset.src;
-    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) v.play().catch(() => {});
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) v.play().catch(() => { });
   } else v.pause();
-}), {threshold: 0.25});
+}), { threshold: 0.25 });
 document.querySelectorAll("video").forEach(v => io.observe(v));
